@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AWS Architecture Diagram</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .mermaid {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AWS Infrastructure Architecture</h1>
+        <div class="mermaid">
+graph TB
+    %% Internet Layer
+    Internet[🌐 Internet]
+    
+    %% AWS Region Container
+    subgraph AWS["🏢 AWS eu-central-1 Region"]
+        
+        %% VPC Container
+        subgraph VPC["🔷 VPC: asterra-demo-vpc<br/>CIDR: 10.0.0.0/16"]
+            
+            %% Availability Zone A
+            subgraph AZA["📍 Availability Zone: eu-central-1a"]
+                PublicA["🌍 Public Subnet A<br/>10.0.0.0/20<br/>Auto-assign Public IP: ✅"]
+                PrivateA["🔒 Private Subnet A<br/>10.0.128.0/20<br/>Auto-assign Public IP: ❌"]
+            end
+            
+            %% Availability Zone B
+            subgraph AZB["📍 Availability Zone: eu-central-1b"]
+                PublicB["🌍 Public Subnet B<br/>10.0.16.0/20<br/>Auto-assign Public IP: ✅"]
+                PrivateB["🔒 Private Subnet B<br/>10.0.144.0/20<br/>Auto-assign Public IP: ❌"]
+            end
+            
+            %% Network Components
+            IGW["🌐 Internet Gateway<br/>asterra-demo-igw"]
+            
+            %% Route Tables
+            PublicRT["🗺️ Public Route Table<br/>• 0.0.0.0/0 → IGW<br/>• Associated with Public Subnets"]
+            PrivateRT["🗺️ Private Route Table<br/>• No Internet Route<br/>• Associated with Private Subnets"]
+            
+            %% Bastion Host
+            Bastion["🖥️ Bastion Host<br/>EC2 Instance<br/>Public IP<br/>SSH Access"]
+            
+            %% RDS Database
+            RDS["🗄️ RDS PostgreSQL<br/>+ PostGIS Extension<br/>Multi-AZ<br/>Private Subnet"]
+            
+            %% Security Groups
+            BastionSG["🛡️ Bastion Security Group<br/>• SSH (22) from Internet<br/>• SSH (22) to Private"]
+            RDSSG["🛡️ RDS Security Group<br/>• PostgreSQL (5432) from Bastion"]
+            AppSG["🛡️ App Security Group<br/>• HTTP (80) from Internet"]
+            
+            %% Route Table Associations
+            PublicRT -.->|Associated| PublicA
+            PublicRT -.->|Associated| PublicB
+            PrivateRT -.->|Associated| PrivateA
+            PrivateRT -.->|Associated| PrivateB
+        end
+        
+        %% S3 Storage (Global Service)
+        subgraph S3["📦 S3 Storage (Global)"]
+            PublicS3["🌐 Public Website Bucket<br/>Name: asterra-demo-public<br/>• Static Website Hosting ✅<br/>• Public Read Policy ✅<br/>• Website Endpoint:<br/>asterra-demo-public.s3-website.eu-central-1.amazonaws.com"]
+            
+            IngestS3["🔒 Ingest Bucket<br/>Name: asterra-demo-ingest<br/>• Private Access Only ✅<br/>• Block Public Access ✅<br/>• Force Destroy ✅"]
+        end
+        
+        %% S3 Access Controls
+        subgraph S3Controls["🔐 S3 Access Controls"]
+            AccountBlock["🏢 Account Public Access Block<br/>• Block Public ACLs: ✅<br/>• Ignore Public ACLs: ✅<br/>• Block Public Policy: ❌<br/>• Restrict Public Buckets: ❌"]
+            
+            PublicBucketBlock["🌐 Public Bucket Access Block<br/>• Block Public ACLs: ❌<br/>• Ignore Public ACLs: ❌<br/>• Block Public Policy: ❌<br/>• Restrict Public Buckets: ❌"]
+        end
+    end
+    
+    %% External Connections
+    Internet -->|HTTP (80)| PublicS3
+    Internet -->|SSH (22)| BastionSG
+    Internet -->|HTTP (80)| AppSG
+    
+    %% VPC Internal Connections
+    IGW --> PublicRT
+    Bastion -->|SSH (22)| RDS
+    Bastion -->|psql (5432)| RDS
+    
+    %% Security Group Associations
+    Bastion -.->|Protected by| BastionSG
+    RDS -.->|Protected by| RDSSG
+    
+    %% S3 Access
+    Bastion -.->|S3 API| IngestS3
+    Bastion -.->|S3 API| PublicS3
+    
+    %% S3 Policy Dependencies
+    AccountBlock -.->|Relaxes| PublicS3
+    PublicBucketBlock -.->|Allows| PublicS3
+    
+    %% Styling
+    classDef vpcStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:3px
+    classDef publicStyle fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px
+    classDef privateStyle fill:#ffcdd2,stroke:#c62828,stroke-width:2px
+    classDef securityStyle fill:#fff8e1,stroke:#f57f17,stroke-width:2px
+    classDef s3Style fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef internetStyle fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef azStyle fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    
+    class VPC vpcStyle
+    class PublicA,PublicB publicStyle
+    class PrivateA,PrivateB privateStyle
+    class BastionSG,RDSSG,AppSG securityStyle
+    class S3,PublicS3,IngestS3 s3Style
+    class Internet,IGW internetStyle
+    class AZA,AZB azStyle
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true
+            }
+        });
+    </script>
+</body>
+</html> 
