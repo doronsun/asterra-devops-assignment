@@ -22,21 +22,34 @@ The goal was to build a **secure, highly available, and production-ready environ
 ## 📦 Terraform Structure
 ```
 .
-├── main.tf
-├── vpc.tf
-├── rds.tf
-├── bastion.tf
-├── s3.tf
-├── variables.tf
-├── outputs.tf
+├── infra/
+│   └── terraform/
+│       └── envs/
+│           └── prod/
+│               ├── main.tf
+│               ├── network_vpc.tf
+│               ├── network_public.tf
+│               ├── network_private_rds.tf
+│               ├── bastion.tf
+│               ├── rds.tf
+│               ├── s3.tf
+│               ├── sg_public.tf
+│               ├── variables.tf
+│               └── outputs.tf
 ├── diagrams/
-│ └── architecture.png
+│   ├── architecture.png
+│   ├── architecture.txt
+│   ├── architecture.mmd
+│   ├── render-diagram.html
+│   └── README.md
 └── scripts/
-└── init_postgis.sh
+    ├── init_postgis.sh
+    └── split_and_fix_s3.sh
 ```
 
 ## 🚀 Deployment Steps
 ```bash
+cd infra/terraform/envs/prod
 terraform init
 terraform apply
 ```
