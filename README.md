@@ -12,11 +12,11 @@ The goal was to build a **secure, highly available, and production-ready environ
 
 ## 🏗 Architecture Overview
 
-### 📋 Text-based Architecture Diagram
-[View Architecture Diagram](diagrams/architecture.txt)
+### 📊 Interactive Architecture Diagram
+[View Full Architecture Diagram](diagrams/architecture-github.md)
 
-### 🖼️ Interactive Architecture Diagram
-[Open Interactive Diagram](diagrams/render-diagram.html) (opens in browser)
+### 📋 Text-based Architecture Diagram
+[View Text Architecture](diagrams/architecture.txt)
 
 ## 🔐 Security Highlights
 - Bastion host in public subnet for SSH into private resources.
@@ -42,6 +42,7 @@ The goal was to build a **secure, highly available, and production-ready environ
 │               ├── variables.tf
 │               └── outputs.tf
 ├── diagrams/
+│   ├── architecture-github.md
 │   ├── architecture.txt
 │   ├── architecture.svg
 │   ├── render-diagram.html
