@@ -43,8 +43,7 @@ The goal was to build a **secure, highly available, and production-ready environ
 │   ├── render-diagram.html
 │   └── README.md
 └── scripts/
-    ├── init_postgis.sh
-    └── split_and_fix_s3.sh
+    └── init_postgis.sh
 ```
 
 ## 🚀 Deployment Steps
