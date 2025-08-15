@@ -11,7 +11,12 @@ The goal was to build a **secure, highly available, and production-ready environ
 - Create and configure **S3 buckets** for public static hosting and secure data ingest.
 
 ## 🏗 Architecture Overview
-![AWS Architecture](diagrams/architecture.png)
+
+### 📋 Text-based Architecture Diagram
+[View Architecture Diagram](diagrams/architecture.txt)
+
+### 🖼️ Interactive Architecture Diagram
+[Open Interactive Diagram](diagrams/render-diagram.html) (opens in browser)
 
 ## 🔐 Security Highlights
 - Bastion host in public subnet for SSH into private resources.
@@ -37,9 +42,8 @@ The goal was to build a **secure, highly available, and production-ready environ
 │               ├── variables.tf
 │               └── outputs.tf
 ├── diagrams/
-│   ├── architecture.png
 │   ├── architecture.txt
-│   ├── architecture.mmd
+│   ├── architecture.svg
 │   ├── render-diagram.html
 │   └── README.md
 └── scripts/
